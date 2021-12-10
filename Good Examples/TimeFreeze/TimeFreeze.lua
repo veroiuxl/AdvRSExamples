@@ -224,7 +224,7 @@ function TimeFreeze:RemoveCurrentLineRenderer()
 	rigidbody.AddForceAtPosition(force,lineRenderer.GetPosition(0),ForceMode.Impulse)
 	print("Applying " .. tostring(force) .. " to " .. rigidbody.transform.name)
 end
-function TimeFreeze:tablefind(tab,el) -- Because Lua sucks
+function TimeFreeze:tablefind(tab,el)
     for index, value in pairs(tab) do
         if value[1] == el then
             return index
