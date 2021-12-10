@@ -1,0 +1,57 @@
+﻿-- Register the behaviour
+behaviour("RandomWeapon3")
+local allWeapons
+function RandomWeapon3:Start()
+     allGear = {}
+     allBigGear = {}
+     allPrimary = {}
+     allSecondary = {}
+    self.allWeapons = WeaponManager.allWeapons
+    for index,weaponentry in ipairs(self.allWeapons) do 
+        if weaponentry.slot == WeaponSlot.Primary then
+            table.insert(allPrimary, weaponentry)
+        end
+        if weaponentry.slot == WeaponSlot.LargeGear then
+            table.insert(allBigGear, weaponentry)
+        end
+        if weaponentry.slot == WeaponSlot.Gear then
+            table.insert(allGear, weaponentry)
+        end
+        if weaponentry.slot == WeaponSlot.Secondary then
+            table.insert(allSecondary, weaponentry)
+        end
+    
+
+    end
+    self.script.StartCoroutine("Randomize")
+
+end
+
+function RandomWeapon3:Randomize()
+        if not Player.actor.isDead then
+        Player.actor.RemoveWeapon(0)
+        Player.actor.RemoveWeapon(1)
+        Player.actor.RemoveWeapon(2)
+        Player.actor.RemoveWeapon(3)
+        Player.actor.RemoveWeapon(4)
+        Player.actor.EquipNewWeaponEntry(allGear[Random.Range(1,#allGear)], 2, false)
+        Player.actor.EquipNewWeaponEntry(allBigGear[Random.Range(1,#allBigGear)], 3, false)
+        Player.actor.EquipNewWeaponEntry(allPrimary[Random.Range(1,#allPrimary)], 0, false)
+        Player.actor.EquipNewWeaponEntry(allSecondary[Random.Range(1,#allSecondary)], 1, false)
+        print("\n")
+        for i,y in ipairs(Player.actor.weaponSlots) do
+            print("Selected Weapon: " .. y.weaponEntry.name .. " in " .. tostring(y.weaponEntry.slot) )
+        end
+        coroutine.yield(WaitForSeconds(120))
+        self.script.StartCoroutine("Randomize")
+        else
+            coroutine.yield(WaitForSeconds(3))
+            self.script.StartCoroutine("Randomize")
+        end
+
+end
+
+
+function RandomWeapon3:Update()
+		
+end

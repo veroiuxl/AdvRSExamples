@@ -1,0 +1,54 @@
+﻿-- Register the behaviour
+behaviour("RandomWeaponAIMode")
+local allWeapons
+function RandomWeaponAIMode:Start()
+  
+    
+    GameEvents.onActorSpawn.AddListener(self,"ActorSpawn")
+    
+   
+
+end
+function RandomWeaponAIMode:ActorSpawn(actor)
+    if not actor.isBot then
+        self.script.StartCoroutine(self:Randomize(actor))
+    end
+end
+function RandomWeaponAIMode:Randomize(actor)
+
+return function()
+    local aliveActors = ActorManager.GetAliveActorsOnTeam(Player.team)
+    local randomActor = aliveActors[Random.Range(0,#aliveActors)]
+    if #aliveActors == 0 or randomActor == nil then
+        coroutine.yield(WaitForSeconds(1))
+        self.script.StartCoroutine(self:Randomize(actor))
+        return
+    end
+    local WeaponsActor = randomActor
+    while randomActor == Player.actor do
+        coroutine.yield(WaitForSeconds(1))
+        self.script.StartCoroutine(self:Randomize(actor))
+        return
+    end
+    if WeaponsActor == nil then
+        coroutine.yield(WaitForSeconds(1))
+        self.script.StartCoroutine(self:Randomize(actor))
+        return
+    end
+    local allWeapons = WeaponsActor.weaponSlots
+    for i,y in ipairs(allWeapons) do
+        local weapon = y.weaponEntry
+        actor.RemoveWeapon(y.slot)
+        actor.EquipNewWeaponEntry(weapon, y.slot, false)
+
+    end 
+    print("\n")
+    for i,y in ipairs(actor.weaponSlots) do
+        print("Selected Weapon: " .. y.weaponEntry.name.. " in "  .. tostring(y.weaponEntry.slot) )
+    end
+end
+end
+
+function RandomWeaponAIMode:Update()
+		
+end
