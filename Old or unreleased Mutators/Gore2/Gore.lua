@@ -11,11 +11,12 @@ function Gore:Start()
 	GameEvents.onActorSpawn.AddListener(self,"onActorSpawn")
 	self.despawnDelay = self.script.mutator.GetConfigurationRange("despawnTime")
 	self.maxSeperatableLimbs = self.script.mutator.GetConfigurationRange("maxSeperatableLimbs") - 1
-	self.leftlegPath = "Armature/Bone/Leg_L/Leg_L_001"
-	self.rightlegPath = "Armature/Bone/Leg_R/Leg_R_001"
-	self.leftarmPath = "Armature/Bone/Bone_001/Bone_002/Shoulder_L/Arm_L_001"
-	self.rightarmPath = "Armature/Bone/Bone_001/Bone_002/Shoulder_R/Arm_R_001"
-	self.headPath = "Armature/Bone/Bone_001/Bone_002/Bone_003/Bone_004" -- I sure hope steel won't update the bones
+	self.leftlegPath = "Armature/Bone/Leg.L/Leg.L_001"
+	self.rightlegPath = "Armature/Bone/Leg.R/Leg.R_001"
+	self.leftarmPath = "Armature/Bone/Bone.001/Bone.002/Shoulder.L/Arm.L.001"
+	self.rightarmPath = "Armature/Bone/Bone.001/Bone.002/Shoulder.R/Arm.R.001"
+	-- self.headPath = "Armature/Bone/Bone_001/Bone_002/Bone_003/Bone_004" -- I sure hope steel won't update the bones (he did)
+	self.headPath = "Armature/Bone/Bone.001/Bone.002/Bone.003/Bone.004" -- For Unity 2020
 end
 function Gore:onActorSpawn(actor)
 
@@ -68,15 +69,15 @@ local boneTransform
 
 if(actor.isBot) then
 	-- This is probably faster than .find
-	if(boneName == "Leg_L_001") then
+	if(boneName == "Leg.L.001") then
  	boneTransform = actor.aiController.gameObject.transform.GetChild(0).Find(self.leftlegPath) 
-	elseif boneName == "Leg_R_001" then
+	elseif boneName == "Leg.R.001" then
 	boneTransform = actor.aiController.gameObject.transform.GetChild(0).Find(self.rightlegPath) 
-	elseif boneName == "Arm_L_001" then
+	elseif boneName == "Arm.L.001" then
 	boneTransform = actor.aiController.gameObject.transform.GetChild(0).Find(self.leftarmPath) 
-	elseif boneName == "Arm_R_001" then
+	elseif boneName == "Arm.R.001" then
 	boneTransform = actor.aiController.gameObject.transform.GetChild(0).Find(self.rightarmPath) 
-	elseif boneName == "Bone_004" then
+	elseif boneName == "Bone.004" then
 	boneTransform = actor.aiController.gameObject.transform.GetChild(0).Find(self.headPath)
 	end
 end
@@ -95,8 +96,8 @@ end
 return returnV
 end
 function Gore:SpawnLimb(bone,actor,targetLimbs,targetInstanceObject,head,resizeBone) 
-local lndawlDAKWFuckingWork = self:ContainsName(targetLimbs,bone)
-if(lndawlDAKWFuckingWork) then
+local targetLimb = self:ContainsName(targetLimbs,bone)
+if(targetLimb) then
 	local actualBoneTransform = self:FindBoneByName(actor,resizeBone)
 	if(actualBoneTransform ~= nil) then
 		print("Used actualboneTransform " .. tostring(actualBoneTransform.gameObject.name))
@@ -144,7 +145,7 @@ end
 function Gore:ApplyChanges(actor,bone)
 return function()
 	local isHead = false
-	if(bone.gameObject.name == "Bone_004") then
+	if(bone.gameObject.name == "Bone.004") then
 		isHead = true
 	end
 	if(isHead) then
@@ -193,23 +194,23 @@ if(source == Player.actor and not info.isScripted and actor ~= Player.actor and 
 	if(info.isSplashDamage and info.healthDamage > actor.health) then
 		hitBone = self:GetHumanoidTransform(actor,HumanBodyBones.Head)
 		hitBone.transform.localScale = Vector3(0,0,-0.2)
-		self:SpawnLimb(hitBone,actor,{"Bone_003","Bone_004"},self.targets.headprefab,true,"Bone_004")
+		self:SpawnLimb(hitBone,actor,{"Bone.003","Bone.004"},self.targets.headprefab,true,"Bone.004")
 		hitBone = self:GetHumanoidTransform(actor,HumanBodyBones.RightLowerArm) 
 		-- hitBone = self:FindBoneByName(actor,"Arm_R_001")
 		hitBone.transform.localScale = Vector3(0,0,0)
-		self:SpawnLimb(hitBone,actor,{"Arm_R_001","Arm_R_002","Arm_R_003"},self.targets.leftArmprefab,false,"Arm_R_001")
+		self:SpawnLimb(hitBone,actor,{"Arm.R.001","Arm.R.002","Arm.R.003"},self.targets.leftArmprefab,false,"Arm.R.001")
 		hitBone = self:GetHumanoidTransform(actor,HumanBodyBones.LeftLowerArm)
 		-- hitBone = self:FindBoneByName(actor,"Arm_L_001")
 		hitBone.transform.localScale = Vector3(0,0,0)
-		self:SpawnLimb(hitBone,actor,{"Arm_L_001","Arm_L_002","Arm_L_003"},self.targets.rightArmprefab,false,"Arm_L_001")
+		self:SpawnLimb(hitBone,actor,{"Arm.L.001","Arm.L.002","Arm.L.003"},self.targets.rightArmprefab,false,"Arm.L.001")
 		hitBone = self:GetHumanoidTransform(actor,HumanBodyBones.LeftLowerLeg)
 		-- hitBone = self:FindBoneByName(actor,"Leg_L_001")
 		hitBone.transform.localScale = Vector3(0,0,0)
-		self:SpawnLimb(hitBone,actor,{"Leg_L_001"},self.targets.leftLegprefab,false,"Leg_L_001")
+		self:SpawnLimb(hitBone,actor,{"Leg.L.001"},self.targets.leftLegprefab,false,"Leg.L.001")
 		hitBone = self:GetHumanoidTransform(actor,HumanBodyBones.RightLowerLeg)
 		-- hitBone = self:FindBoneByName(actor,"Leg_R_001")
 		hitBone.transform.localScale = Vector3(0,0,0)
-		self:SpawnLimb(hitBone,actor,{"Leg_R_001"},self.targets.rightLegprefab,false,"Leg_R_001")
+		self:SpawnLimb(hitBone,actor,{"Leg.R.001"},self.targets.rightLegprefab,false,"Leg.R.001")
 
 	end
 	if(raycast ~= nil and raycast.transform.gameObject ~= nil) then
@@ -221,7 +222,7 @@ if(source == Player.actor and not info.isScripted and actor ~= Player.actor and 
 		-- or hitBone.transform == legRight
 		or hitBone.transform == hips
 		or hitBone.transform.gameObject.name == "Bone"
-		or hitBone.transform.gameObject.name == "Bone_001"
+		or hitBone.transform.gameObject.name == "Bone.001"
 		or string.find(hitBone.transform.gameObject.name,"Terrain") -- lazy but it works
 		) then
 		print("Hit banned bone " .. tostring(hitBone.name))
@@ -231,22 +232,22 @@ if(source == Player.actor and not info.isScripted and actor ~= Player.actor and 
 	if(info.healthDamage >= actor.health and not hitBannedBone and hitBone ~= nil) then
 		-- print(hitBone.transform.gameObject.name)
 		local actorHitCountInTable = self.actorGoreCount[self:tablefindInTable(self.actorGoreCount,actor)][2]
-		if(actorHitCountInTable <= self.maxSeperatableLimbs) then -- cause spahghett 
+		if(actorHitCountInTable <= self.maxSeperatableLimbs) then
 		print("Actor had " .. tostring(actorHitCountInTable) .. " hits already")
-		if(hitBone.transform.gameObject.name == "Bone_003" or hitBone.transform.gameObject.name == "Bone_004") then
-			self:SpawnLimb(hitBone,actor,{"Bone_003","Bone_004"},self.targets.headprefab,true,"Bone_004")
+		if(hitBone.transform.gameObject.name == "Bone.003" or hitBone.transform.gameObject.name == "Bone.004") then
+			self:SpawnLimb(hitBone,actor,{"Bone.003","Bone.004"},self.targets.headprefab,true,"Bone.004")
 		end
-		if(hitBone.transform.gameObject.name == "Arm_R_001" or hitBone.transform.gameObject.name == "Arm_R_002" or hitBone.transform.gameObject.name == "Arm_R_003" ) then
-			self:SpawnLimb(hitBone,actor,{"Arm_R_001","Arm_R_002","Arm_R_003"},self.targets.leftArmprefab,false,"Arm_R_001")
+		if(hitBone.transform.gameObject.name == "Arm.R.001" or hitBone.transform.gameObject.name == "Arm.R.002" or hitBone.transform.gameObject.name == "Arm.R.003" ) then
+			self:SpawnLimb(hitBone,actor,{"Arm.R.001","Arm_R_002","Arm.R.003"},self.targets.leftArmprefab,false,"Arm.R.001")
 		end
-		if(hitBone.transform.gameObject.name == "Arm_L_001" or hitBone.transform.gameObject.name == "Arm_L_002" or hitBone.transform.gameObject.name == "Arm_L_003" ) then
-			self:SpawnLimb(hitBone,actor,{"Arm_L_001","Arm_L_002","Arm_L_003"},self.targets.rightArmprefab,false,"Arm_L_001")
+		if(hitBone.transform.gameObject.name == "Arm_L_001" or hitBone.transform.gameObject.name == "Arm.L.002" or hitBone.transform.gameObject.name == "Arm.L.003" ) then
+			self:SpawnLimb(hitBone,actor,{"Arm.L.001","Arm.L.002","Arm.L.003"},self.targets.rightArmprefab,false,"Arm.L.001")
 		end
-		if(hitBone.transform.gameObject.name == "Leg_L_001" or hitBone.transform.gameObject.name == "Leg_L" or hitBone.transform.gameObject.name == "Leg_L_002" ) then
-			self:SpawnLimb(hitBone,actor,{"Leg_L_001","Leg_L_002"},self.targets.leftLegprefab,false,"Leg_L_001")
+		if(hitBone.transform.gameObject.name == "Leg_L_001" or hitBone.transform.gameObject.name == "Leg.L" or hitBone.transform.gameObject.name == "Leg.L.002" ) then
+			self:SpawnLimb(hitBone,actor,{"Leg.L.001","Leg.L.002"},self.targets.leftLegprefab,false,"Leg.L.001")
 		end
-		if(hitBone.transform.gameObject.name == "Leg_R_001" or hitBone.transform.gameObject.name == "Leg_R" or hitBone.transform.gameObject.name == "Leg_R_002") then
-			self:SpawnLimb(hitBone,actor,{"Leg_R_001","Leg_R_002"},self.targets.rightLegprefab,false,"Leg_R_001")
+		if(hitBone.transform.gameObject.name == "Leg_R_001" or hitBone.transform.gameObject.name == "Leg.R" or hitBone.transform.gameObject.name == "Leg.R.002") then
+			self:SpawnLimb(hitBone,actor,{"Leg.R.001","Leg.R.002"},self.targets.rightLegprefab,false,"Leg.R.001")
 		end
 		self.actorGoreCount[self:tablefindInTable(self.actorGoreCount,actor)][2] = actorHitCountInTable + 1
 		else
