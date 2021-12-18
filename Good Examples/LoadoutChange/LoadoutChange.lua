@@ -1,38 +1,46 @@
-﻿-- Register the behaviour
+-- Register the behaviour
 behaviour("LoadoutChange")
 
 function LoadoutChange:Start()
-self.canvas = self.targets.canvas
-self.button = self.targets.button
-self.hasLargeGear = false
-self.allowLoadoutChange = false
-self.Mode = self.script.mutator.GetConfigurationDropdown("versionSelected")
-self.resupplyCrateRange = self.script.mutator.GetConfigurationRange("resupplyCrateRange")
-self.allResupplyCrates1 = GameObject.FindObjectsOfType(ResupplyCrate)
-self.allResupplyCrates = {}
-for i,y in ipairs(self.allResupplyCrates1) do -- Unnecessary 
-table.insert(self.allResupplyCrates, {y,false})
-end
-self.button.GetComponent(Button).onClick.AddListener(self,"onOverlayClicked")
-self.DeployButton = GameObject.Find("Deploy Button")
-self.button.GetComponent(RectTransform).SetParent(self.DeployButton.transform,false)
-self.button.GetComponent(RectTransform).anchorMin = self.DeployButton.GetComponent(RectTransform).anchorMin
-self.button.GetComponent(RectTransform).anchorMax = self.DeployButton.GetComponent(RectTransform).anchorMax
-self.button.GetComponent(RectTransform).anchoredPosition = self.DeployButton.GetComponent(RectTransform).anchoredPosition 
-self.button.GetComponent(RectTransform).sizeDelta = self.DeployButton.GetComponent(RectTransform).sizeDelta
-self.button.GetComponent(RectTransform).pivot = self.DeployButton.GetComponent(RectTransform).pivot
-self.button.GetComponent(RectTransform).offsetMax = self.DeployButton.GetComponent(RectTransform).offsetMax
-self.button.GetComponent(RectTransform).offsetMin = self.DeployButton.GetComponent(RectTransform).offsetMin
-self.button.GetComponent(RectTransform).localPosition = self.button.GetComponent(RectTransform).localPosition + Vector3(0,65,0)
-self.PrimaryWeaponSelected = GameObject.Find("Primary Button").gameObject.transform.GetChild(0).gameObject.GetComponent(Text)
-self.secondaryWeaponSelected = GameObject.Find("Secondary Button").gameObject.transform.GetChild(0).gameObject.GetComponent(Text)
-self.Gear1WeaponSelected = GameObject.Find("Gear 1 Button").gameObject.transform.GetChild(0).gameObject.GetComponent(Text)
-self.loadoutUI = GameObject.Find("Background Panel").gameObject.transform.Find("Minimap Parent")
-self.DeployText = self.DeployButton.GetComponentInChildren(Text)
--- local pr = GameObject.Find("Primary Button").gameObject.transform.parent.gameObject.transform
--- for i=0,pr.childCount - 1,1 do
--- print(pr.GetChild(i).gameObject.name)
--- end
+    self.canvas = self.targets.canvas
+    self.button = self.targets.button.GetComponent(RectTransform)
+    self.hasLargeGear = false
+    self.allowLoadoutChange = false
+    self.Mode = self.script.mutator.GetConfigurationDropdown("versionSelected")
+    self.resupplyCrateRange = self.script.mutator.GetConfigurationRange("resupplyCrateRange")
+    self.allResupplyCrates1 = GameObject.FindObjectsOfType(ResupplyCrate)
+    self.allResupplyCrates = {}
+    for i,y in ipairs(self.allResupplyCrates1) do -- Unnecessary 
+    table.insert(self.allResupplyCrates, {y,false})
+    end
+    self.button.onClick.AddListener(self,"onOverlayClicked")
+    self.DeployButton = GameObject.Find("Deploy Button").GetComponent(RectTransform)
+    if(self.DeployButton == nil) then
+        print("Deploy Button was nil!")
+        self.Mode = -1
+        return
+    end
+    self.button.SetParent(self.DeployButton.transform,false)
+    self.button.anchorMin = self.DeployButton.anchorMin
+    self.button.anchorMax = self.DeployButton.anchorMax
+    self.button.anchoredPosition = self.DeployButton.anchoredPosition 
+    self.button.sizeDelta = self.DeployButton.sizeDelta
+    self.button.pivot = self.DeployButton.pivot
+    self.button.offsetMax = self.DeployButton.offsetMax
+    self.button.offsetMin = self.DeployButton.offsetMin
+    self.button.localPosition = self.button.localPosition + Vector3(0,65,0)
+    self.PrimaryWeaponSelected = GameObject.Find("Primary Button").gameObject.transform.GetChild(0).gameObject.GetComponent(Text)
+    self.secondaryWeaponSelected = GameObject.Find("Secondary Button").gameObject.transform.GetChild(0).gameObject.GetComponent(Text)
+    self.Gear1WeaponSelected = GameObject.Find("Gear 1 Button").gameObject.transform.GetChild(0).gameObject.GetComponent(Text)
+    self.loadoutUI = GameObject.Find("Background Panel").gameObject.transform.Find("Minimap Parent")
+    self.DeployText = self.DeployButton.GetComponentInChildren(Text)
+    -- local pr = GameObject.Find("Primary Button").gameObject.transform.parent.gameObject.transform
+    -- for i=0,pr.childCount - 1,1 do
+    -- print(pr.GetChild(i).gameObject.name)
+    -- end
+
+    self.updateCounter = 1
+
 end
 function LoadoutChange:tablefind(tab,el) 
     for index, value in pairs(tab) do
@@ -43,10 +51,10 @@ function LoadoutChange:tablefind(tab,el)
 end
 
 function LoadoutChange:AddResupplyCrate(resupplyCrate)
-table.insert(self.allResupplyCrates, {resupplyCrate,false})
+    table.insert(self.allResupplyCrates, {resupplyCrate,false})
 end
 function LoadoutChange:RemoveResupplyCrate(resupplyCrate)
-table.remove(self.allResupplyCrates,self:tablefind(self.allResupplyCrates,resupplyCrate))
+    table.remove(self.allResupplyCrates,self:tablefind(self.allResupplyCrates,resupplyCrate))
 end
 function LoadoutChange:onOverlayClicked()
 	self.Gear2WeaponSelected = GameObject.Find("Gear 2 Button")
@@ -121,22 +129,25 @@ function LoadoutChange:Update()
 		self.button.transform.gameObject.SetActive(false)
 	end
 	if self.Mode == 0 then
-	if not Player.actor.isDead and not Player.actor.isFallenOver and not Player.actor.isInWater and not Player.actor.isOnLadder and not Player.actor.isSeated then
-		local atleastOnIsTrue = false
-		for i,y in ipairs(self.allResupplyCrates) do
-			
-	if (Vector3.Distance(Player.actor.position,y[1].transform.position) < self.resupplyCrateRange) then
-		atleastOnIsTrue = true
-	end
-	end
-	self.allowLoadoutChange = atleastOnIsTrue
-	end
+        self.updateCounter = self.updateCounter + 2
+        if(self.updateCounter >= 150) then
+	        if not Player.actor.isDead and not Player.actor.isFallenOver and not Player.actor.isInWater and not Player.actor.isOnLadder and not Player.actor.isSeated then
+	        	local atleastOnIsTrue = false
+	            for i,y in ipairs(self.allResupplyCrates) do	
+	                if (Vector3.Distance(Player.actor.position,y[1].transform.position) < self.resupplyCrateRange) then
+	            	    atleastOnIsTrue = true
+	                end
+	            end
+	            self.allowLoadoutChange = atleastOnIsTrue
+	        end
+            self.updateCounter = 0
+        end
 else if self.Mode == 1 then
 if Input.GetKey(KeyCode.LeftControl) or Input.GetKey(KeyCode.RightControl) then
-if Input.GetKeyBindButtonDown(KeyBinds.OpenLoadout) then
-	self.allowLoadoutChange = true
-end
-end
+		if Input.GetKeyBindButtonDown(KeyBinds.OpenLoadout) then
+			self.allowLoadoutChange = true
+		end
+	end
 end
 
 	-- if Input.GetKeyBindButtonDown(KeyBinds.Use) then
